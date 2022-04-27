@@ -3,3 +3,6 @@
 
 #Executables
 *.out
+
+#Test-input
+test.txt

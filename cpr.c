@@ -54,15 +54,19 @@ int main(int argc, char const *argv[]) {
     /* Generate possible CPRs */
     n_cpr = generateCprs(line, cprList);
     
-    /* Print possible CPRs to stdout */
+    /* Print output to stdout */
+    // List input and number of constructed CPRs
+    printf(">%.9s, %d CPR numbers generated >>\n", line, n_cpr);
+    
+    //Print output in lines of 7 CPRs
     for(uint16_t i = 0; i < n_cpr; i++) {
-      printf("%010d ",cprList[i]);
+      if( (i+1)%7 != 0 ) {
+        printf("%010d ",cprList[i]);
+      } else {
+        printf("%010d\n",cprList[i]);
+      }
     }
-    printf("\n");
-
-    /* Print for debugging */
-    //printf("%zu characters were read.\n",len);
-    //printf("You typed: '%s'\n",buffer);
+    printf("<<\n");
   }
   
   
