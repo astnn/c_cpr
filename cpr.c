@@ -1,58 +1,80 @@
 #include <stdio.h>
-#include <stdint.h>
+#include <stdint.h> // Supplies uint#_t formats
 #include <stdlib.h>
 #include <getopt.h>
 #include <ctype.h>
-#include <math.h>
+#include <errno.h> // Defines the external errno variable and possible values
+
+#include "cpr.h"
+#include "main.h" // For access to options_t
 
 #define MAX_CPR 1000
 #define MIN_YEAR 1858
 #define MAX_YEAR 2057
 
+extern int errno;
+extern char *optarg;
+extern int opterr, optind;
 
 // int verMod11(char *cpr); // Maybe this one.
-uint8_t sexCheck(uint8_t sex, char *cpr);
-uint8_t genMod11Cipher(uint8_t *cpr9ciphers);
-uint8_t gen7CipherList(uint16_t birthYear, uint8_t *poss7thCipher);
-uint16_t generateCprs(char *birthDateAndSex, uint32_t *cprList);
-uint8_t verifyInput(char *str);
-void input2birthdateAndSex(char *str, char *birthDateAndSex);
-uint8_t extractData(char *line, uint8_t);
-uint32_t powUint(uint8_t base, uint8_t exp);
-uint32_t cprVect2uint32(uint8_t *cprVect);
+uint8_t   sexCheck(uint8_t sex, uint8_t *cpr);
+uint8_t   genMod11Cipher(uint8_t *cpr9ciphers);
+uint8_t   gen7CipherList(uint16_t birthYear, uint8_t *poss7thCipher);
+uint16_t  generateCprList(uint8_t sex, uint16_t birthYear, uint8_t *cprVect, uint32_t *cprList);
+uint8_t   verifyInput(char *str);
+uint8_t   extractData(char *line, uint8_t);
+uint32_t  powUint(uint8_t base, uint8_t exp);
+uint32_t  cprVect2uint32(uint8_t *cprVect);
+uint8_t   readSex(char *dstr);
+uint16_t  readBirthYear(char *dstr);
+void      readFirst6Cpr(char *dstr, uint8_t *cprVect);
 
 
-int main(int argc, char const *argv[]) {
+int generateCprs(options_t *options) {
   uint32_t linenumber, cprList[MAX_CPR];
-  uint16_t n_cpr;
-  uint8_t inputError, sex;
-  
+  uint16_t n_cpr, birthYear;
+  uint8_t sex, cprVect[10];
 
-  char birthDateAndSex[10];
   char *line;
   size_t lineBufsize = 32;
   size_t len;
 
-
+  // Allocate memory to input line
   line = (char *)malloc(lineBufsize * sizeof(char));
   if( line == NULL) {
-      perror("Unable to allocate buffer for line");
-      exit(1);
+      errno = ENOMEM;
+      return EXIT_FAILURE;
+  }
+  
+  // Validate options
+  if(!options) {
+    errno = EINVAL;
+    return EXIT_FAILURE;
+  }
+  
+  if(!options->input || !options->output) {
+    errno = ENOENT;
+    return EXIT_FAILURE;
   }
   
   linenumber = 0;
-
-  while((len = getline(&line,&lineBufsize,stdin)) != -1) {
+  // Read an input line
+  while((len = getline(&line,&lineBufsize,options->input)) != -1) {
     linenumber++;
     /* Check formatting of input. Should be DDMMYYYYS */
     if(verifyInput(line) != 0) {
       // Todo: Change to an error?
-      printf("Input on line %d could not be read. Input should be of format DDMMYYYYS\n", linenumber);
+      printf(">Invalid input on line %d. Input should be of format DDMMYYYYS\n", linenumber);
+      continue;
     }
     
+    /* Read data from input line */
+    sex = readSex(line);
+    birthYear = readBirthYear(line);
+    readFirst6Cpr(line, cprVect);
     
     /* Generate possible CPRs */
-    n_cpr = generateCprs(line, cprList);
+    n_cpr = generateCprList(sex, birthYear, cprVect, cprList);
     
     /* Print output to stdout */
     // List input and number of constructed CPRs
@@ -70,30 +92,37 @@ int main(int argc, char const *argv[]) {
   }
   
   
-  return 0;
+  return EXIT_SUCCESS;
+}
+/* readSex: Determines sex from datastring. 0 for female, 1 for male */
+uint8_t readSex(char *dstr) {
+  if(dstr[8] == 'f' || dstr[8] == 'F') {
+    return 0;
+  } else {
+    return 1;
+  }
 }
 
-uint16_t generateCprs(char *dstr, uint32_t *cprList) {
-  uint8_t cprVect[10], poss7thCipher[6], len7Cipher, sex;
-  uint16_t birthYear, cprCount;
-  
-  /* Determine sex. 0 for female, 1 for male*/
-  if(dstr[8] == 'f' || dstr[8] == 'F') {
-    sex = 0;
-  } else {
-    sex = 1;
-  }
-  
-  /* Extract birthyear */
-  birthYear = 1000*(dstr[4]-'0') + 100*(dstr[5]-'0') + 10*(dstr[6]-'0') + (dstr[7]-'0');
-  
-  /* Convert char str to uint8 vect */
+/* readBirthYear: Reads the birthyear from the input string */
+uint16_t readBirthYear(char *dstr) {
+  return 1000*(dstr[4]-'0') + 100*(dstr[5]-'0') + 10*(dstr[6]-'0') + (dstr[7]-'0');
+}
+
+void readFirst6Cpr(char *dstr, uint8_t *cprVect) {
   cprVect[0] = dstr[0]-'0';
   cprVect[1] = dstr[1]-'0';
   cprVect[2] = dstr[2]-'0';
   cprVect[3] = dstr[3]-'0';
   cprVect[4] = dstr[6]-'0';
   cprVect[5] = dstr[7]-'0';
+  
+  return;
+}
+
+uint16_t generateCprList(uint8_t sex, uint16_t birthYear, uint8_t *cprVect, uint32_t *cprList) {
+  uint8_t poss7thCipher[6], len7Cipher;
+  uint16_t cprCount;
+
   
   len7Cipher = gen7CipherList(birthYear, poss7thCipher);
   
@@ -105,7 +134,8 @@ uint16_t generateCprs(char *dstr, uint32_t *cprList) {
       for(uint8_t k = 0; k < 10; k++) {
         cprVect[8] = k;
         cprVect[9] = genMod11Cipher(cprVect);
-        if(cprVect[9] != -1 && sexCheck(sex, cprVect)) {
+        // Ensure CPR is in range 0-9 and sex match last CPR digit
+        if(cprVect[9] < 10 && sexCheck(sex, cprVect)) {
           cprList[cprCount++] = cprVect2uint32(cprVect);
         }
       }
@@ -117,12 +147,13 @@ uint16_t generateCprs(char *dstr, uint32_t *cprList) {
 
 /* Checks if the known sex matches the last cipher of the CPR-number. Returns
 1 on a match and 0 on no match */
-uint8_t sexCheck(uint8_t sex, char *cprVect) {
+uint8_t sexCheck(uint8_t sex, uint8_t *cprVect) {
   return (cprVect[9] % 2) == sex; 
 }
 
 /* genMod11Cipher: Returns the modulus 11 control cipher as calculated from
-the previous 9 ciphers. Returns -1 (i.e. 255) if no cipher could be constructed
+the previous 9 ciphers. Notice that while the algorithm can legaly return 10, it
+is not an accepted CPR digit and it should be discarded
 */
 uint8_t genMod11Cipher(uint8_t *cpr9ciphers) {
   uint32_t sum;
@@ -143,7 +174,7 @@ uint8_t genMod11Cipher(uint8_t *cpr9ciphers) {
     res = 11 - rem; // How much should be added to make rem 0?
   }
   
-  return (res < 10) ? res : -1;
+  return res;
 }
 
 /* cprVect2uint32: Returns the content of the cpr vector as a uint32 */

@@ -6,3 +6,9 @@
 
 #Test-input
 test.txt
+
+#Temp files
+*~
+
+#Binary output
+cpr
