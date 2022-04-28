@@ -1,14 +1,15 @@
 #Pdfs
 *.pdf
 
-#Executables
-*.out
-
 #Test-input
 test.txt
 
 #Temp files
 *~
 
-#Binary output
+#Binary outputs
 cpr
+*.out
+
+#Object files
+*.o
