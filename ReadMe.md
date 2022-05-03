@@ -28,16 +28,22 @@ returns all **modulus 11 compliant** CPR numbers.
 
 #### Input and output
 The program takes its input input either from stdin or from the file given after
-the optional ´-i´ flag. Output is either returned to stdout or the file specified
-by the optional ´-o flag.
+the optional ```-i``` flag. Output is either returned to stdout or the file specified
+by the optional ```-o``` flag.
 
 The data format of the input birth date and sex must be given on the format
-´DDMMYYYYS´, where ´DD´ is day, ´MM´ is month and ´YYYY´ is year. ´S´ represents
-the sex and must be either 'M' for male or 'F' for female.
+'DDMMYYYYS', where 'DD' is day, 'MM' is month and 'YYYY' is year. 'S' represents
+the sex and must be either 'M' for male or 'F' for female (case insensitive).
 Multiple inputs can be given in the same file, so long as it each input is given
 on its own line.
 
 #### Usage example
+Usage information:
+```bash
+   $ ./cpr -h
+```
+
+Example with input file:
 ```bash
    $ printf "01021999M\n03041998F\n" > test.txt
    $ ./cpr < test.txt
