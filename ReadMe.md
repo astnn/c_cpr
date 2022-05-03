@@ -58,7 +58,7 @@ registry. It is broadly used to exchange personal information between public and
 private IT systems and databases throughout Denmark.
 
 For a more detailed description of the CPR number see its [Wikipedia entry][1]
-or visit their [website][2] (in Danish).
+or visit the [official website][2] (in Danish).
 The technical description, upon which this program has been build, can be found
 [here][3] (also Danish).
 
