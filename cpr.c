@@ -16,7 +16,7 @@ extern int errno;
 extern char *optarg;
 extern int opterr, optind;
 
-// int verMod11(char *cpr); // Maybe this one.
+// int verMod11(char *cpr); // Maybe this one?
 uint8_t   sexCheck(uint8_t sex, uint8_t *cpr);
 uint8_t   genMod11Cipher(uint8_t *cpr9ciphers);
 uint8_t   gen7CipherList(uint16_t birthYear, uint8_t *poss7thCipher);
@@ -36,8 +36,7 @@ int generateCprs(options_t *options) {
   uint8_t sex, cprVect[10];
 
   char *line;
-  size_t lineBufsize = 32;
-  size_t len;
+  size_t lineBufsize = 32, len;
 
   // Allocate memory to input line
   line = (char *)malloc(lineBufsize * sizeof(char));

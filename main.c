@@ -1,9 +1,10 @@
 /* main.c */
 
-/* This code is made available under a GNU GPL-3.0 (or later) license. The full
+/* By A. S. Nielsen 2022
+This code is made available under a GNU GPL-3.0 (or later) license. The full
 license is available in the file "COPYING" at the root of the repository. */
 
-/*** 1 includes ***/
+/*** includes ***/
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -15,23 +16,24 @@ license is available in the file "COPYING" at the root of the repository. */
 
 #include "main.h"
 #include "cpr.h"
-/* 2 defines */
+
+/* defines */
 #define OPTSTR "vi:o:h"
 #define USAGE_FMT  "%s [-v] [-i inputfile] [-o outputfile] [-h]\n"
 #define ERR_FOPEN_INPUT  "fopen(input, r)"
 #define ERR_FOPEN_OUTPUT "fopen(output, w)"
 #define ERR_GENERATE_CPR "Error encountered while running generateCpr()"
 #define DEFAULT_PROGNAME "cpr"
-/* 3 external declarations */
+
+/* external declarations */
 extern int errno;
 extern char *optarg;
 extern int opterr, optind;
-/* 4 typedefs */
 
-/* 5 global variable declarations */
-/* 6 function prototypes */
+/* function prototypes */
 void usage(char *progname, int opt);
-int  do_the_needful(options_t *options);
+
+
 
 int main(int argc, char *argv[]) {
   int opt;
