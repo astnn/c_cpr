@@ -63,7 +63,8 @@ int generateCprs(options_t *options) {
     /* Check formatting of input. Should be DDMMYYYYS */
     if(verifyInput(line) != 0) {
       // Todo: Change to an error?
-      printf(">Invalid input on line %d. Input should be of format DDMMYYYYS\n", linenumber);
+      printf(">Invalid input on line %d. Input should be of format DDMMYYYYS,"
+      " where the date is valid and S is either 'F' or 'M' for the sex\n", linenumber);
       continue;
     }
     
@@ -82,9 +83,9 @@ int generateCprs(options_t *options) {
     //Print output in lines of 7 CPRs
     for(uint16_t i = 0; i < n_cpr; i++) {
       if( (i+1)%7 != 0 ) {
-        printf("%010d ",cprList[i]);
+        printf("%010u ",cprList[i]);
       } else {
-        printf("%010d\n",cprList[i]);
+        printf("%010u\n",cprList[i]);
       }
     }
     printf("<<\n");
